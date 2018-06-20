@@ -84,5 +84,11 @@ fn main() {
                 println!("cargo:rustc-link-lib={}", &lib[2..]);
             }
         }
+    } else if cfg!(feature = "static") && target_os() == "windows" {
+        for lib in &[
+            "comctl32", "ole32", "oleaut32", "d2d1", "uxtheme", "dwrite", "stdc++",
+        ] {
+            println!("cargo:rustc-link-lib={}", lib);
+        }
     }
 }
