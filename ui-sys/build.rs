@@ -5,6 +5,10 @@ use std::env;
 use std::path::Path;
 use std::process::Command;
 
+fn target_os() -> String {
+    env::var("CARGO_CFG_TARGET_OS").unwrap_or(String::new())
+}
+
 fn main() {
     // Fetch the submodule if needed
     if cfg!(feature = "fetch") {
@@ -39,7 +43,7 @@ fn main() {
             cfg.define("BUILD_SHARED_LIBS", "OFF");
             // When cross compiling, clang/gcc (correctly) errors on narrowing not allowed in c++11.
             // Disable that until libui fixes that.
-            if std::env::var("CARGO_CFG_TARGET_OS").unwrap_or(String::new()) == "windows" {
+            if target_os() == "windows" {
                 cfg.cxxflag("-Wno-c++11-narrowing");
             }
         }
@@ -61,7 +65,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib={}", libname);
 
-    if cfg!(all(feature = "static", unix)) {
+    if cfg!(feature = "static") && target_os() == "windows" {
         let out = Command::new("pkg-config")
             .args(&["--libs", "gtk+-3.0"])
             .output()
