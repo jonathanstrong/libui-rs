@@ -32,18 +32,19 @@ fn main() {
     // Build libui if needed. Otherwise, assume it's in lib/
     let mut dst;
     if cfg!(feature = "build") {
-        dst = if cfg!(feature = "static") {
-            Config::new("libui")
-                .build_target("")
-                .profile("release")
-                .define("BUILD_SHARED_LIBS", "OFF")
-                .build()
-        } else {
-            Config::new("libui")
-                .build_target("")
-                .profile("release")
-                .build()
-        };
+        let mut cfg = Config::new("libui");
+        cfg.build_target("").profile("release");
+
+        if cfg!(feature = "static") {
+            cfg.define("BUILD_SHARED_LIBS", "OFF");
+            // When cross compiling, clang/gcc (correctly) errors on narrowing not allowed in c++11.
+            // Disable that until libui fixes that.
+            if std::env::var("CARGO_CFG_TARGET_OS").unwrap_or(String::new()) == "windows" {
+                cfg.cxxflag("-Wno-c++11-narrowing");
+            }
+        }
+
+        dst = cfg.build();
 
         let mut postfix = Path::new("build").join("out");
         if msvc {
