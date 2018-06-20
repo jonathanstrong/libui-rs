@@ -59,4 +59,25 @@ fn main() {
 
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib={}", libname);
+
+    if cfg!(all(feature = "static", unix)) {
+        let out = Command::new("pkg-config")
+            .args(&["--libs", "gtk+-3.0"])
+            .output()
+            .expect("pkg-config does not appear to be installed.");
+
+        if !out.status.success() {
+            panic!("couldn't find gtk+-3.0");
+        }
+
+        for lib in std::str::from_utf8(&out.stdout)
+            .expect("invalid output from pkg-config.")
+            .split(' ')
+        {
+            if lib.len() > 2 {
+                assert!(&lib[..2] == "-l");
+                println!("cargo:rustc-link-lib={}", &lib[2..]);
+            }
+        }
+    }
 }
