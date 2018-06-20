@@ -43,6 +43,7 @@ default = ["fetch", "build"]
 
 fetch = []
 build = []
+static = []
 
 [dependencies]
 libc = "0.2"

@@ -32,7 +32,18 @@ fn main() {
     // Build libui if needed. Otherwise, assume it's in lib/
     let mut dst;
     if cfg!(feature = "build") {
-        dst = Config::new("libui").build_target("").profile("release").build();
+        dst = if cfg!(feature = "static") {
+            Config::new("libui")
+                .build_target("")
+                .profile("release")
+                .define("BUILD_SHARED_LIBS", "OFF")
+                .build()
+        } else {
+            Config::new("libui")
+                .build_target("")
+                .profile("release")
+                .build()
+        };
 
         let mut postfix = Path::new("build").join("out");
         if msvc {
@@ -40,17 +51,11 @@ fn main() {
         }
         dst = dst.join(&postfix);
     } else {
-        dst = env::current_dir()
-            .expect("Unable to retrieve current directory location.");
+        dst = env::current_dir().expect("Unable to retrieve current directory location.");
         dst.push("lib");
     }
 
-    let libname;
-     if msvc {
-        libname = "libui";
-    } else {
-        libname = "ui";
-    }
+    let libname = if msvc { "libui" } else { "ui" };
 
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib={}", libname);
