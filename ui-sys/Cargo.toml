@@ -39,7 +39,7 @@ appveyor = { repository = "LeoTindall/libui-rs", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["fetch", "build"]
+default = ["fetch", "build", "static"]
 
 fetch = []
 build = []
