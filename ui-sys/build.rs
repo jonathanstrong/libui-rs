@@ -65,7 +65,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib={}", libname);
 
-    if cfg!(feature = "static") && target_os() == "unix" {
+    if cfg!(feature = "static") && target_os() == "linux" {
         let out = Command::new("pkg-config")
             .args(&["--libs", "gtk+-3.0"])
             .output()
