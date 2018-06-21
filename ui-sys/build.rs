@@ -1,4 +1,5 @@
 extern crate cmake;
+
 use cmake::Config;
 
 use std::env;
@@ -89,6 +90,29 @@ fn main() {
             "comctl32", "ole32", "oleaut32", "d2d1", "uxtheme", "dwrite", "stdc++",
         ] {
             println!("cargo:rustc-link-lib={}", lib);
+        }
+    }
+
+    if cfg!(all(not(target_os = "windows"), feature = "static")) {
+        if let Some(cmd) = match env::var("TARGET").unwrap().as_str() {
+            "x86_64-pc-windows-gnu" => Some("x86_64-w64-mingw32-windres"),
+            "i686-pc-windows-gnu" => Some("i686-w64-mingw32-windres"),
+            _ => None,
+        } {
+            let prefix = "resource";
+            let resource = "resource.rc";
+
+            Command::new(cmd)
+                .args(&[
+                    "--input",
+                    resource,
+                    "--output-format=coff",
+                    &format!("--output={}/lib{}.a", dst.display(), prefix),
+                ])
+                .status()
+                .expect("could not run windres");
+
+            println!("cargo:rustc-link-lib={}", prefix);
         }
     }
 }
