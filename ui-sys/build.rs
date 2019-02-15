@@ -82,12 +82,6 @@ fn main() {
         dst.push("lib");
     }
 
-    let libname;
-    if msvc {
-        libname = "libui";
-    } else {
-        libname = "ui";
-    }
     let libname = if msvc { "libui" } else { "ui" };
 
     println!("cargo:rustc-link-search=native={}", dst.display());
