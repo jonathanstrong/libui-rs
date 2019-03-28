@@ -65,9 +65,9 @@ fn main() {
             cfg.define("BUILD_SHARED_LIBS", "OFF");
             // When cross compiling, clang/gcc (correctly) errors on narrowing not allowed in c++11.
             // Disable that until libui fixes that.
-            if target_os() == "windows" {
-                cfg.cxxflag("-Wno-c++11-narrowing");
-            }
+            //if target_os() == "windows" {
+            //    cfg.cxxflag("-Wno-c++11-narrowing");
+            //}
         }
 
         dst = cfg.build();
